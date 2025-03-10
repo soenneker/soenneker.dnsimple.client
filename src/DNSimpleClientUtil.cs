@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Soenneker.DNSimple.Client.Abstract;
-using Soenneker.Extensions.Arrays.Bytes;
 using Soenneker.Extensions.Configuration;
-using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.HttpClientCache.Abstract;
 using Soenneker.Utils.HttpClientCache.Dtos;
@@ -30,22 +28,16 @@ public class DNSimpleClientUtil : IDNSimpleClientUtil
 
     public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
     {
-        var username = _configuration.GetValueStrict<string>("DNSimple:Email");
         var token = _configuration.GetValueStrict<string>("DNSimple:Token");
 
-        if (test)
-            username += "-test";
-
         string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
-
-        string authHeader = $"{username}:{token}".ToBytes().ToBase64String();
 
         var options = new HttpClientOptions
         {
             BaseAddress = baseUrl,
             DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
             {
-                { "Authorization", $"Basic {authHeader}" }
+                { "Authorization", $"Bearer {token}" }
             }
         };
 
