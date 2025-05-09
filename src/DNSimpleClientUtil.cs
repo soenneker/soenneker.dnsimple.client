@@ -3,22 +3,24 @@ using Soenneker.DNSimple.Client.Abstract;
 using Soenneker.Extensions.Configuration;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.HttpClientCache.Abstract;
-using Soenneker.Utils.HttpClientCache.Dtos;
 using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Dtos.HttpClientOptions;
 
 namespace Soenneker.DNSimple.Client;
 
 /// <inheritdoc cref="IDNSimpleClientUtil"/>
-public class DNSimpleClientUtil : IDNSimpleClientUtil
+public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
 {
     private readonly IHttpClientCache _httpClientCache;
     private readonly IConfiguration _configuration;
 
     private const string _prodBaseUrl = "https://api.dnsimple.com/v2/";
     private const string _testBaseUrl = "https://api.sandbox.dnsimple.com/v2/";
+    private const string _clientId = nameof(DNSimpleClientUtil);
+    private const string _testClientId = nameof(DNSimpleClientUtil) + "-test";
 
     public DNSimpleClientUtil(IHttpClientCache httpClientCache, IConfiguration configuration)
     {
@@ -28,36 +30,35 @@ public class DNSimpleClientUtil : IDNSimpleClientUtil
 
     public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
     {
-        var token = _configuration.GetValueStrict<string>("DNSimple:Token");
-
+        string clientId = test ? _testClientId : _clientId;
         string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
 
-        var options = new HttpClientOptions
+        return _httpClientCache.Get(clientId, () =>
         {
-            BaseAddress = baseUrl,
-            DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+            var token = _configuration.GetValueStrict<string>("DNSimple:Token");
+
+            return new HttpClientOptions
             {
-                { "Authorization", $"Bearer {token}" }
-            }
-        };
-
-        string clientName = test ? $"{nameof(DNSimpleClientUtil)}-test" : nameof(DNSimpleClientUtil);
-
-        return _httpClientCache.Get(clientName, options, cancellationToken);
+                BaseAddress = baseUrl,
+                DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "Authorization", $"Bearer {token}" }
+                }
+            };
+        }, cancellationToken);
     }
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-
-        _httpClientCache.RemoveSync(nameof(DNSimpleClientUtil));
-        _httpClientCache.RemoveSync($"{nameof(DNSimpleClientUtil)}-test");
+        _httpClientCache.RemoveSync(_clientId);
+        _httpClientCache.RemoveSync(_testClientId);
     }
 
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-        await _httpClientCache.Remove(nameof(DNSimpleClientUtil)).NoSync();
-        await _httpClientCache.Remove($"{nameof(DNSimpleClientUtil)}-test").NoSync();
+        await _httpClientCache.Remove(_clientId).NoSync();
+        await _httpClientCache.Remove(_testClientId).NoSync();
     }
 }
