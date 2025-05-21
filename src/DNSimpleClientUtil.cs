@@ -20,7 +20,6 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
     private const string _prodBaseUrl = "https://api.dnsimple.com/v2/";
     private const string _testBaseUrl = "https://api.sandbox.dnsimple.com/v2/";
     private const string _clientId = nameof(DNSimpleClientUtil);
-    private const string _testClientId = nameof(DNSimpleClientUtil) + "-test";
 
     public DNSimpleClientUtil(IHttpClientCache httpClientCache, IConfiguration configuration)
     {
@@ -30,13 +29,11 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        var test = _configuration.GetValueStrict<bool>("DNSimple:Test");
-
-        string clientId = test ? _testClientId : _clientId;
-        string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
-
-        return _httpClientCache.Get(clientId, () =>
+        return _httpClientCache.Get(_clientId, () =>
         {
+            var test = _configuration.GetValueStrict<bool>("DNSimple:Test");
+            string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
+
             var token = _configuration.GetValueStrict<string>("DNSimple:Token");
 
             return new HttpClientOptions
@@ -44,7 +41,7 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
                 BaseAddress = baseUrl,
                 DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
                 {
-                    { "Authorization", $"Bearer {token}" }
+                    {"Authorization", $"Bearer {token}"}
                 }
             };
         }, cancellationToken);
@@ -54,13 +51,11 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
     {
         GC.SuppressFinalize(this);
         _httpClientCache.RemoveSync(_clientId);
-        _httpClientCache.RemoveSync(_testClientId);
     }
 
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
         await _httpClientCache.Remove(_clientId).NoSync();
-        await _httpClientCache.Remove(_testClientId).NoSync();
     }
 }
