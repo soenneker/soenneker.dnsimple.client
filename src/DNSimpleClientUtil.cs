@@ -28,8 +28,10 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
         _configuration = configuration;
     }
 
-    public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
+    public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
+        var test = _configuration.GetValueStrict<bool>("DNSimple:Test");
+
         string clientId = test ? _testClientId : _clientId;
         string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
 

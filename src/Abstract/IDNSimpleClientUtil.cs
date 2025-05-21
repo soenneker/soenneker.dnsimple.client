@@ -10,5 +10,5 @@ namespace Soenneker.DNSimple.Client.Abstract;
 /// </summary>
 public interface IDNSimpleClientUtil : IDisposable, IAsyncDisposable
 {
-    ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default);
+    ValueTask<HttpClient> Get(CancellationToken cancellationToken = default);
 }
