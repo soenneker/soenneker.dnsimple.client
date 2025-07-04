@@ -15,8 +15,7 @@ public static class DNSimpleClientUtilRegistrar
     /// </summary>
     public static IServiceCollection AddDNSimpleClientUtilAsSingleton(this IServiceCollection services)
     {
-        services.AddHttpClientCacheAsSingleton();
-        services.TryAddSingleton<IDNSimpleClientUtil, DNSimpleClientUtil>();
+        services.AddHttpClientCacheAsSingleton().TryAddSingleton<IDNSimpleClientUtil, DNSimpleClientUtil>();
 
         return services;
     }
@@ -26,8 +25,7 @@ public static class DNSimpleClientUtilRegistrar
     /// </summary>
     public static IServiceCollection AddDNSimpleClientUtilAsScoped(this IServiceCollection services)
     {
-        services.AddHttpClientCacheAsSingleton();
-        services.TryAddScoped<IDNSimpleClientUtil, DNSimpleClientUtil>();
+        services.AddHttpClientCacheAsSingleton().TryAddScoped<IDNSimpleClientUtil, DNSimpleClientUtil>();
 
         return services;
     }

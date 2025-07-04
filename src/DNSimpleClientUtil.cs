@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Soenneker.DNSimple.Client.Abstract;
 using Soenneker.Extensions.Configuration;
-using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.HttpClientCache.Abstract;
-using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,13 +47,11 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
 
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
         _httpClientCache.RemoveSync(_clientId);
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
-        await _httpClientCache.Remove(_clientId).NoSync();
+        return _httpClientCache.Remove(_clientId);
     }
 }
