@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.DNSimple.Client.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.DNSimple.Client\Soenneker.DNSimple.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
