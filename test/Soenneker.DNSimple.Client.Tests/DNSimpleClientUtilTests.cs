@@ -1,20 +1,19 @@
-﻿using Soenneker.DNSimple.Client.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.DNSimple.Client.Abstract;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.DNSimple.Client.Tests;
 
-[Collection("Collection")]
-public class DNSimpleClientUtilTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class DNSimpleClientUtilTests : HostedUnitTest
 {
     private readonly IDNSimpleClientUtil _util;
 
-    public DNSimpleClientUtilTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public DNSimpleClientUtilTests(Host host) : base(host)
     {
         _util = Resolve<IDNSimpleClientUtil>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
