@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 namespace Soenneker.DNSimple.Client.Abstract;
 
 /// <summary>
-/// An async thread-safe singleton for the DNSimple client
+/// Provides a cached, authenticated <see cref="HttpClient"/> for DNSimple's API.
 /// </summary>
 public interface IDNSimpleClientUtil : IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// Gets the value.
+    /// Gets the client owned by this provider.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <returns>The configured DNSimple client.</returns>
     ValueTask<HttpClient> Get(CancellationToken cancellationToken = default);
 }

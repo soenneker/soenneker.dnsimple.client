@@ -18,7 +18,7 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
 
     private static readonly Uri _prodBaseUrl = new("https://api.dnsimple.com/v2/", UriKind.Absolute);
     private static readonly Uri _testBaseUrl = new("https://api.sandbox.dnsimple.com/v2/", UriKind.Absolute);
-    private const string _clientId = nameof(DNSimpleClientUtil);
+    private readonly string _clientId = $"{nameof(DNSimpleClientUtil)}:{Guid.NewGuid():N}";
 
     public DNSimpleClientUtil(IHttpClientCache httpClientCache, IConfiguration configuration)
     {
@@ -28,7 +28,6 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        // No closure: state passed explicitly + static lambda
         return _httpClientCache.Get(_clientId, (configuration: _configuration, testBaseUrl: _testBaseUrl, prodBaseUrl: _prodBaseUrl), static state =>
         {
             var test = state.configuration.GetValueStrict<bool>("DNSimple:Test");
@@ -47,18 +46,11 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
         }, cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
         _httpClientCache.RemoveSync(_clientId);
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
         return _httpClientCache.Remove(_clientId);
