@@ -30,10 +30,10 @@ public sealed class DNSimpleClientUtil : IDNSimpleClientUtil
     {
         return _httpClientCache.Get(_clientId, (configuration: _configuration, testBaseUrl: _testBaseUrl, prodBaseUrl: _prodBaseUrl), static state =>
         {
-            var test = state.configuration.GetValueStrict<bool>("DNSimple:Test");
+            var test = bool.Parse(state.configuration.GetStringStrict("DNSimple:Test"));
             Uri baseUrl = test ? state.testBaseUrl : state.prodBaseUrl;
 
-            var token = state.configuration.GetValueStrict<string>("DNSimple:Token");
+            var token = state.configuration.GetStringStrict("DNSimple:Token");
 
             return new HttpClientOptions
             {
